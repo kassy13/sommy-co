@@ -1,169 +1,215 @@
-// scripts/fetchProducts.js
-
-// Fetch and display products for a specific category
-// let cart = JSON.parse(localStorage.getItem('cart')) || []; // Retrieve existing cart items
-
-// const fetchProducts = async (categoryName = '', searchTerm = '', page = 1, itemsPerPage = 8) => {
+// const fetchCategoryProducts = async (category) => {
+//   console.log("ghhvfhcgjhvlkjbl;vhljgchgjvhkbj");
 //   try {
-//     const url = new URL(`https://api.storerestapi.com/products?categoryId=${categoryId}`);
-//     if (categoryName) url.searchParams.set("type", categoryName);
+//     // Show a loading message or preloader
+//     const productsContainer = document.getElementById("products-container");
+//     if (productsContainer) {
+//       productsContainer.innerHTML = "<p>Loading products...</p>";
+//     }
 
-//     const response = await fetch(url);
-//     if (!response.ok) throw new Error(`Failed to fetch products for category: ${categoryName}`);
-
-//     const { products } = await response.json();
-//     console.log("Products:", products);
-
-//     // Filter products by search term
-//     const filteredProducts = products.filter(product =>
-//       product.title.toLowerCase().includes(searchTerm.toLowerCase())
+//     // Fetch products for the given category from the API
+//     const response = await fetch(
+//       `https://dummyjson.com/products/category/${category}`
 //     );
+//     if (!response.ok) {
+//       throw new Error(
+//         `Failed to fetch products for category ${category}. Status: ${response.status}`
+//       );
+//     }
 
-//     // Pagination logic
-//     const start = (page - 1) * itemsPerPage;
-//     const paginatedProducts = filteredProducts.slice(start, start + itemsPerPage);
-//     const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+//     const products = await response.json(); // This contains the products object
+//     console.log("Products:", products.products); // Now log the actual products array
 
-//     // Render products
-//     renderProducts(paginatedProducts);
+//     // Display products
+//     if (products && products.products && products.products.length > 0) {
+//       productsContainer.innerHTML = ""; // Clear loading message
+//       products.products.forEach((product) => {
+//         // Use products.products to access the array
+//         const productHTML = `
+//                     <div class="product">
+//                         <div class="product-card">
+//                         <div class="popular-product-img">
+//                             <img src="${product.images[0]}" alt="${
+//           product.title
+//         }" class="product-image">
+//                         </div>
+//                         <div class="product-info">
+//                             <h3 class="product-name">
+//                                 <a class="shorten" href="product-details.html?id=${
+//                                   product.id
+//                                 }">${product.title}</a>
+//                             </h3>
+//                             <p class="product-price">$${product.price.toFixed(
+//                               2
+//                             )}</p>
 
-//     // Render pagination
-//     renderPagination(totalPages, page, categoryName, searchTerm);
+//                             <p class="product-availability">${
+//                               product.availabilityStatus
+//                             }</p>
+//                         </div>
+//                         <div class="category-top">
+//                             <p>${product.category}</p>
+//                         </div>
+//                         <!-- Hover Controls -->
+//                         <div class="product-controls">
+//                             <button class="add-to-cart">
+//                                 <i class="ri-shopping-cart-2-line"></i>
+//                             </button>
+//                             <button class="add-to-wishlist">
+//                                 <i class="ri-heart-line"></i>
+//                             </button>
+//                         </div>
+//                     </div>
+//                     </div>
+//                 `;
+//         productsContainer.insertAdjacentHTML("beforeend", productHTML);
+//       });
+//     } else {
+//       productsContainer.innerHTML =
+//         "<p>No products found in this category.</p>";
+//     }
 //   } catch (error) {
-//     console.error("Error fetching products:", error.message);
+//     console.error("Error fetching category products:", error.message);
+//     const productsContainer = document.getElementById("products-container");
+//     if (productsContainer) {
+//       productsContainer.innerHTML =
+//         "<p>Error loading products. Please try again later.</p>";
+//     }
 //   }
 // };
 
-// const renderProducts = (products) => {
-//   const productsContainer = document.getElementById("products-container");
-//   productsContainer.innerHTML = ""; // Clear previous products
-
-//   products.forEach(product => {
-//     const productElement = document.createElement("div");
-//     productElement.classList.add("product");
-//     productElement.innerHTML = `
-//       <h3>${product.title}</h3>
-//       <img src="${product.image}" alt="${product.title}">
-//       <p><strong>Price: $${product.price}</strong></p>
-//       <div class="cta-buttons">
-//         <button class="add-to-cart" data-id="${product.id}">Add to Cart</button>
-//         <button class="like" data-id="${product.id}">♥ Like</button>
-//       </div>
-//     `;
-//     productsContainer.appendChild(productElement);
-//   });
-
-//   // Add event listeners for buttons
-//   document.querySelectorAll('.add-to-cart').forEach(button => {
-//     button.addEventListener('click', (e) => {
-//       const productId = e.target.dataset.id;
-//       const selectedProduct = products.find(product => product.id == productId);
-//       addToCart(selectedProduct);
-//     });
-//   });
-
-//   document.querySelectorAll('.like').forEach(button => {
-//     button.addEventListener('click', (e) => {
-//       const productId = e.target.dataset.id;
-//       console.log(`Product ${productId} liked!`);
-//       alert(`You liked product ${productId}`);
-//     });
-//   });
-// };
-
-// const addToCart = (product) => {
-//   if (!cart.some(item => item.id === product.id)) {
-//     cart.push(product);
-//     localStorage.setItem('cart', JSON.stringify(cart)); // Save to localStorage
-//     alert(`${product.title} added to cart!`);
-//   } else {
-//     alert(`${product.title} is already in the cart.`);
-//   }
-// };
-
-// const renderPagination = (totalPages, currentPage, categoryName, searchTerm) => {
-//   const paginationContainer = document.getElementById("pagination-container");
-//   paginationContainer.innerHTML = ""; // Clear previous pagination
-
-//   for (let i = 1; i <= totalPages; i++) {
-//     const button = document.createElement("button");
-//     button.classList.add("pagination-button");
-//     if (i === currentPage) button.classList.add("active");
-//     button.textContent = i;
-
-//     button.addEventListener("click", () => {
-//       fetchProducts(categoryName, searchTerm, i);
-//     });
-
-//     paginationContainer.appendChild(button);
-//   }
-// };
-
-// // Add event listeners for filtering
-// document.getElementById("apply-filter").addEventListener("click", () => {
-//   const category = document.getElementById("filter-category").value;
-//   const searchTerm = document.getElementById("search-box").value;
-//   fetchProducts(category, searchTerm);
+// // Fetch and display products when the page is loaded
+// window.addEventListener("load", () => {
+//   const category = new URLSearchParams(window.location.search).get("category");
+//   console.log(category);
+//   fetchCategoryProducts(category);
+//   // if (category) {
+//   //     fetchCategoryProducts(category);
+//   // } else {
+//   //     console.error("No category found in the URL.");
+//   // }
 // });
-
-// // Initial fetch on page load
-// document.addEventListener("DOMContentLoaded", () => {
-//   const urlParams = new URLSearchParams(window.location.search);
-//   const categoryName = urlParams.get("category") || "";
-//   fetchProducts(categoryName);
-// });
-
 
 const fetchCategoryProducts = async (category) => {
-    try {
-        // Show a loading message or preloader
-        const productsContainer = document.getElementById('products-container');
-        if (productsContainer) {
-            productsContainer.innerHTML = '<p>Loading products...</p>';
-        }
+  const productsContainer = document.getElementById("products-container");
+  const paginationContainer = document.getElementById("pagination-container");
 
-        // Fetch products for the given category from the API
-        const response = await fetch(`https://dummyjson.com/products/category/${category}`);
-        if (!response.ok) {
-            throw new Error(`Failed to fetch products for category ${category}. Status: ${response.status}`);
-        }
+  const itemsPerPage = 8; // Number of items per page
+  let currentPage = 1; // Default to the first page
 
-        const products = await response.json(); // This contains the products object
-        console.log("Products:", products.products); // Now log the actual products array
-
-        // Display products
-        if (products && products.products && products.products.length > 0) {
-            productsContainer.innerHTML = ''; // Clear loading message
-            products.products.forEach((product) => { // Use products.products to access the array
-                const productHTML = `
-                    <div class="product">
-                        <img src="${product.images[0] || 'https://via.placeholder.com/150'}" alt="${product.title}">
-                        <h3>${product.title}</h3>
-                        <p>$${product.price}</p>
-                    </div>
-                `;
-                productsContainer.insertAdjacentHTML('beforeend', productHTML);
-            });
-        } else {
-            productsContainer.innerHTML = '<p>No products found in this category.</p>';
-        }
-    } catch (error) {
-        console.error("Error fetching category products:", error.message);
-        const productsContainer = document.getElementById('products-container');
-        if (productsContainer) {
-            productsContainer.innerHTML = '<p>Error loading products. Please try again later.</p>';
-        }
+  try {
+    // Show a loading message
+    if (productsContainer) {
+      productsContainer.innerHTML = "<p>Loading products...</p>";
     }
+
+    // Fetch products from the API
+    const response = await fetch(
+      `https://dummyjson.com/products/category/${category}`
+    );
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch products for category ${category}. Status: ${response.status}`
+      );
+    }
+
+    const products = await response.json(); // This contains the products object
+    const totalProducts = products.products.length;
+
+    if (totalProducts === 0) {
+      productsContainer.innerHTML =
+        "<p>No products found in this category.</p>";
+      return;
+    }
+
+    // Function to render a specific page
+    const renderPage = (page) => {
+      currentPage = page;
+
+      // Calculate start and end indexes
+      const startIndex = (page - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const productsToDisplay = products.products.slice(startIndex, endIndex);
+
+      // Clear previous products and render new ones
+      productsContainer.innerHTML = "";
+      productsToDisplay.forEach((product) => {
+        const productHTML = `
+            <div class="product">
+              <div class="product-card">
+                <div class="popular-product-img"> 
+                  <img src="${product.images[0]}" alt="${
+          product.title
+        }" class="product-image">
+                </div>
+                <div class="product-info">
+                  <h3 class="product-name"> 
+                    <a class="shorten" href="product-details.html?id=${
+                      product.id
+                    }">${product.title}</a>
+                  </h3>
+                  <p class="product-price">$${product.price.toFixed(2)}</p>
+                  <p class="product-availability">${
+                    product.availabilityStatus || "In Stock"
+                  }</p>
+                </div>
+                <div class="category-top"> 
+                  <p>${product.category}</p> 
+                </div>
+                <!-- Hover Controls -->
+                <div class="product-controls">
+                  <button class="add-to-cart">
+                    <i class="ri-shopping-cart-2-line"></i> 
+                  </button>
+                  <button class="add-to-wishlist">
+                    <i class="ri-heart-line"></i> 
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        productsContainer.insertAdjacentHTML("beforeend", productHTML);
+      });
+    };
+
+    // Function to render pagination buttons
+    const renderPagination = () => {
+      const totalPages = Math.ceil(totalProducts / itemsPerPage);
+
+      // Clear previous pagination buttons
+      paginationContainer.innerHTML = "";
+
+      // Create buttons dynamically
+      for (let i = 1; i <= totalPages; i++) {
+        const button = document.createElement("button");
+        button.textContent = i;
+        button.className = i === currentPage ? "active" : "";
+        button.addEventListener("click", () => {
+          renderPage(i);
+          renderPagination();
+        });
+        paginationContainer.appendChild(button);
+      }
+    };
+
+    // Initial rendering
+    renderPage(currentPage);
+    renderPagination();
+  } catch (error) {
+    console.error("Error fetching category products:", error.message);
+    if (productsContainer) {
+      productsContainer.innerHTML =
+        "<p>Error loading products. Please try again later.</p>";
+    }
+  }
 };
 
 // Fetch and display products when the page is loaded
 window.addEventListener("load", () => {
-    const category = new URLSearchParams(window.location.search).get('category');
-    console.log(category)
-    fetchCategoryProducts(category)
-    // if (category) {
-    //     fetchCategoryProducts(category);
-    // } else {
-    //     console.error("No category found in the URL.");
-    // }
+  const category = new URLSearchParams(window.location.search).get("category");
+  if (category) {
+    fetchCategoryProducts(category);
+  } else {
+    console.error("No category found in the URL.");
+  }
 });
