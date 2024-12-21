@@ -84,7 +84,7 @@ async function fetchProduct(productId) {
     if (!response.ok) throw new Error("Failed to fetch product details");
 
     const product = await response.json();
-
+    console.log("proucts", product);
     // Render the product details
     renderProduct(product);
   } catch (error) {
@@ -143,7 +143,9 @@ function renderProduct(product) {
                         </div>
                         <div class="quantity">
                             <label for="quantity">Quantity:</label>
-                            <input type="number" id="quantity" min=${product.minimumOrderQuantity} value="1">
+                            <input type="number" id="quantity" min=${
+                              product.minimumOrderQuantity
+                            } value="1">
                         </div>
                         <div class="actions">
                             <button class="add-to-cart">Add to Cart</button>
