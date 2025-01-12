@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart Items</title>
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/loader.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
+    <!-- <link rel="stylesheet" href="css/font-awesome.min.css" type="text/css"> -->
+
+    <!-- fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/appwrite"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/toastify.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #cart-items {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+        }
+
+        .cart-item img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 15px;
+        }
+
+        .cart-item-details {
+            flex: 1;
+        }
+
+        .cart-item-details h4 {
+            font-size: 1.1rem;
+            margin: 0 0 5px;
+            color: #333;
+        }
+
+        .cart-item-details p {
+            margin: 5px 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .cart-item-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .cart-item-actions button {
+            background-color: #ff5100;
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+
+        .cart-item-actions button:hover {
+            background-color: #e07300;
+        }
+
+        #total-amount {
+            font-size: 1.5rem;
+            text-align: right;
+            margin: 20px 0;
+            color: #333;
+        }
+
+        #checkout-button {
+            background-color: #ff5100;
+            color: #fff;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        #checkout-button:hover {
+            background-color: #e07300;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="preloder">
+
+        <span class="loader"></span>
+    </div>
+    <main id="gen-container">
+
+
+        <div id="header-placeholder"></div>
+        <h1>Cart Items</h1>
+
+        <div id="cart-items"></div>
+        <h3 id="total-amount">Total: $0.00</h3>
+
+        <button id="checkout-button">Proceed to Checkout</button>
+    </main>
+    <script type="module" src="js/injectHeader.js"></script>
+
+    <script>
+
+        function showLoader() {
+            document.getElementById("preloder").style.display = "block";
+            document.getElementById("gen-container").style.display = "none";
+        }
+
+        function hideLoader() {
+            document.getElementById("preloder").style.display = "none";
+            document.getElementById("gen-container").style.display = "block";
+        }
+
+
+        const client = new Appwrite.Client();
+        client.setEndpoint("https://cloud.appwrite.io/v1").setProject("675da000000fd4f21140");
+
+        const account = new Appwrite.Account(client);
+        const database = new Appwrite.Databases(client);
+
+        function showToast(message, type = "success") {
+            Toastify({
+                text: message,
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                backgroundColor: type === "success" ? "green" : "red",
+            }).showToast();
+        }
+
+        async function fetchUserSession() {
+            try {
+                const session = await account.get();
+                sessionStorage.setItem("currentUser", JSON.stringify({ id: session.$id }));
+                return session.$id;
+            } catch (error) {
+                console.error(error);
+                window.location.href = "/signin";
+            }
+        }
+
+        async function fetchCartItems() {
+            showLoader(); // Show loader when request starts
+            const userId = JSON.parse(sessionStorage.getItem("currentUser"))?.id;
+
+            if (!userId) {
+                return [];
+            }
+
+            try {
+                const response = await database.listDocuments("6777b3ad001b214a23a2", "6777b3f800054b43ad72");
+                return response.documents;
+            } catch (error) {
+                console.error(error);
+                return [];
+            } finally {
+                hideLoader(); // Hide loader when request ends
+            }
+        }
+
+        async function displayCartItems() {
+            await fetchUserSession();
+            const cartItems = await fetchCartItems();
+
+            const cartContainer = document.getElementById("cart-items");
+            cartContainer.innerHTML = "";
+
+            if (cartItems.length === 0) {
+                cartContainer.innerHTML = "<p>Your cart is empty.</p>";
+                return;
+            }
+
+            let totalAmount = 0;
+
+            cartItems.forEach((item) => {
+                totalAmount += item.price * item.quantity;
+
+                const itemDiv = document.createElement("div");
+                itemDiv.className = "cart-item";
+                itemDiv.innerHTML = `
+                    <img src="${item.imageUrl}" alt="${item.productName}">
+                    <div class="cart-item-details">
+                        <h4>${item.productName}</h4>
+                        <p>Price: $${item.price}</p>
+                        <p>Quantity: ${item.quantity}</p>
+                    </div>
+                    <div class="cart-item-actions">
+                        <button data-id="${item.$id}" class="delete-item">Delete</button>
+                    </div>
+                `;
+
+                cartContainer.appendChild(itemDiv);
+            });
+
+            document.getElementById("total-amount").innerText = `Total: $${totalAmount.toFixed(2)}`;
+
+            document.querySelectorAll(".delete-item").forEach((button) => {
+                button.addEventListener("click", deleteCartItem);
+            });
+        }
+
+        async function deleteCartItem(event) {
+            const documentId = event.target.dataset.id;
+
+            try {
+                await database.deleteDocument("6777b3ad001b214a23a2", "6777b3f800054b43ad72", documentId);
+                showToast("Item deleted successfully!", "success");
+                displayCartItems();
+            } catch (error) {
+                console.error(error);
+                showToast("Failed to delete item.", "error");
+            }
+        }
+
+        document.getElementById("checkout-button").addEventListener("click", () => {
+            showToast("Proceeding to checkout...");
+        });
+
+        displayCartItems();
+    </script>
+
+</body>
+
+</html>

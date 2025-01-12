@@ -22,9 +22,16 @@
                         <li><a href="#">English</a></li>
                     </ul>
                 </div>
+                <!-- <div class="custom-header-auth">
+                    <a href="signin.html"><i class="ri-user-fill" id="logged"></i> Login</a>
+                </div> -->
+
                 <div class="custom-header-auth">
-                    <a href="signin.html"><i class="ri-user-fill"></i> Login</a>
+                    <span id="user-info"></span>
+                    <a href="signin.html" id="login-link"><i class="ri-user-fill"></i> Login</a>
+                    <button id="logout-btn" style="display: none;">Logout</button>
                 </div>
+
             </div>
         </div>
     </div>
@@ -43,7 +50,7 @@
         <div class="custom-header-cart">
             <ul>
                 <li><a href="#"><i class="ri-heart-fill"></i> <span>1</span></a></li>
-                <li><a href="#"><i class="ri-shopping-bag-fill"></i> <span>3</span></a></li>
+                <li><a href="#"><i class="ri-shopping-bag-fill"></i> <span id="cart-badge">0</span></a></li>
             </ul>
             <!-- <div class="custom-cart-price">item: <span>$150.00</span></div> -->
         </div>

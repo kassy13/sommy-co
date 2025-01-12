@@ -87,6 +87,10 @@ async function fetchProduct(productId) {
     console.log("proucts", product);
     // Render the product details
     renderProduct(product);
+
+    // Add event listener for the Add to Cart button
+    const addToCartButton = document.querySelector(".add-to-cart");
+    addToCartButton.addEventListener("click", () => addToCart(product));
   } catch (error) {
     console.error("Error fetching product:", error);
   }
@@ -143,10 +147,13 @@ function renderProduct(product) {
                         </div>
                         <div class="quantity">
                             <label for="quantity">Quantity:</label>
-                            <input type="number" id="quantity" min=${
+                            <input type="number" id="quantity" value=${
                               product.minimumOrderQuantity
-                            } value="1">
+                            }>
                         </div>
+                       <div class="total-price">Total: $${product.price.toFixed(
+                         2
+                       )}</div>
                         <div class="actions">
                             <button class="add-to-cart">Add to Cart</button>
                         </div>
@@ -171,8 +178,22 @@ function renderProduct(product) {
                       .join("")}
                 </div>
             `;
-}
+  // Handle quantity input change
+  const quantityInput = document.getElementById("quantity");
+  const totalPriceElement = document.querySelector(".total-price");
 
+  // Update total price based on quantity
+  quantityInput.addEventListener("input", (event) => {
+    let quantity = parseInt(event.target.value, 10);
+    if (isNaN(quantity) || quantity < product.minimumOrderQuantity) {
+      quantity = product.minimumOrderQuantity;
+    }
+    event.target.value = quantity;
+
+    const totalPrice = quantity * product.price;
+    totalPriceElement.textContent = `Total: $${totalPrice.toFixed(2)}`;
+  });
+}
 // Generate stars for the rating
 function generateStars(rating) {
   const fullStars = Math.floor(rating);
@@ -186,4 +207,64 @@ if (productId) {
   fetchProduct(productId);
 } else {
   console.error("No product ID provided in the URL");
+}
+
+// Initialize Appwrite Client
+const client = new Appwrite.Client()
+  .setEndpoint("https://cloud.appwrite.io/v1") // Your Appwrite endpoint
+  .setProject("675da000000fd4f21140"); // Your project ID
+
+// Function to add product to cart
+const currentUserId = sessionStorage.getItem("currentUser");
+console.log("newuser", currentUserId);
+async function addToCart(product) {
+  const database = new Appwrite.Databases(client);
+  try {
+    // Get the current user ID (assuming you have a logged-in user session)
+    const userId = currentUserId; // Replace with actual user ID from Appwrite session
+
+    if (!userId) {
+      alert("No user logged in.");
+      return;
+    }
+    // Get the selected quantity
+    const quantity = parseInt(document.getElementById("quantity").value, 10);
+
+    // Prepare the data to save
+    const cartData = {
+      userId,
+      productId: String(product.id),
+      productName: product.title,
+      price: product.price,
+      quantity,
+      imageUrl: product.images[0] || "https://via.placeholder.com/600",
+    };
+    console.log(cartData);
+
+    // Save the cart item to the database
+    const response = await database.createDocument(
+      "6777b3ad001b214a23a2",
+      "6777b3f800054b43ad72", // Replace with your collection ID
+      Appwrite.ID.unique(), // Unique document ID
+      cartData
+    );
+
+    console.log("Product added to cart:", response);
+    Toastify({
+      text: "Product added to cart successfully!",
+      backgroundColor: "green",
+      duration: 3000,
+    }).showToast();
+    setTimeout(() => {
+      window.location.href = "/cart.html";
+    }, 3000);
+    return;
+  } catch (error) {
+    console.error("Error adding to cart:", error);
+    Toastify({
+      text: "Failed to add product to cart.!",
+      backgroundColor: "red",
+      duration: 3000,
+    }).showToast();
+  }
 }

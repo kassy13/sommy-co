@@ -213,3 +213,81 @@ window.addEventListener("load", () => {
     console.error("No category found in the URL.");
   }
 });
+
+// Search products
+const searchbox = document.querySelector("#search-box");
+
+const searchItem = async function (e) {
+  e.preventDefault();
+  try {
+    const query = document.getElementById("search-box").value.trim(); // Replace with your search input ID
+    if (!query) return;
+
+    // Fetch search results
+    const response = await fetch(
+      `https://dummyjson.com/products/search?q=${query}`
+    );
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch search results. Status: ${response.status}`
+      );
+    }
+    console.log(response);
+    const data = await response.json();
+    const productsContainer = document.getElementById("products-container");
+    console.log("object", data);
+    // Clear existing products
+    productsContainer.innerHTML = "";
+
+    if (data.products.length === 0) {
+      productsContainer.innerHTML = "<p>No products found.</p>";
+      return;
+    }
+
+    // Display products
+    data.products.forEach((product) => {
+      const productHTML = `
+            <div class="product">
+              <div class="product-card">
+                <div class="popular-product-img"> 
+                  <img src="${product.images[0]}" alt="${
+        product.title
+      }" class="product-image">
+                </div>
+                <div class="product-info">
+                  <h3 class="product-name"> 
+                    <a class="shorten" href="product-details.html?id=${
+                      product.id
+                    }">${product.title}</a>
+                  </h3>
+                  <p class="product-price">$${product.price.toFixed(2)}</p>
+                  <p class="product-availability">${
+                    product.availabilityStatus || "In Stock"
+                  }</p>
+                </div>
+                <div class="category-top"> 
+                  <p>${product.category}</p> 
+                </div>
+                <!-- Hover Controls -->
+                <div class="product-controls">
+                  <button class="add-to-cart">
+                    <i class="ri-shopping-cart-2-line"></i> 
+                  </button>
+                  <button class="add-to-wishlist">
+                    <i class="ri-heart-line"></i> 
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+      productsContainer.insertAdjacentHTML("beforeend", productHTML);
+    });
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+searchbox.addEventListener("input", (e) => {
+  console.log("clicked");
+  searchItem(e); // Pass the event to searchItem function
+});
