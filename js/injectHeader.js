@@ -71,7 +71,8 @@ async function initAuth() {
     logoutBtn.addEventListener("click", async () => {
       await account.deleteSession("current");
       alert("You have been logged out.");
-      location.reload();
+      // location.reload();
+      window.location.href = "index.html";
     });
   } catch {
     // If no user is logged in, show the login link
@@ -85,8 +86,8 @@ async function fetchCartItems(userId, cartBadge) {
   try {
     const database = new Appwrite.Databases(client);
     const response = await database.listDocuments(
-      "6777b3ad001b214a23a2", // Your database ID
-      "6777b3f800054b43ad72", // Your collection ID
+      "orders", // Your database ID
+      "67882e540004d6edc4d4", // Your collection ID
       [Appwrite.Query.equal("userId", userId)]
     );
     console.log(response);

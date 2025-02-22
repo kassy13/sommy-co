@@ -68,8 +68,8 @@
 
 // Initialize Appwrite client
 const client = new Appwrite.Client()
-  .setEndpoint("https://cloud.appwrite.io/v1") 
-  .setProject("675da000000fd4f21140"); 
+  .setEndpoint("https://cloud.appwrite.io/v1")
+  .setProject("675da000000fd4f21140");
 
 // Initialize Appwrite account service
 const account = new Appwrite.Account(client);

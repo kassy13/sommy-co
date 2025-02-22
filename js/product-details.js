@@ -224,7 +224,11 @@ async function addToCart(product) {
     const userId = currentUserId; // Replace with actual user ID from Appwrite session
 
     if (!userId) {
-      alert("No user logged in.");
+      Toastify({
+        text: "No user logged in, Please log in.!",
+        backgroundColor: "red",
+        duration: 3000,
+      }).showToast();
       return;
     }
     // Get the selected quantity
@@ -243,8 +247,8 @@ async function addToCart(product) {
 
     // Save the cart item to the database
     const response = await database.createDocument(
-      "6777b3ad001b214a23a2",
-      "6777b3f800054b43ad72", // Replace with your collection ID
+      "orders",
+      "67882e540004d6edc4d4", // Replace with your collection ID
       Appwrite.ID.unique(), // Unique document ID
       cartData
     );
