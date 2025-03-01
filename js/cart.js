@@ -178,7 +178,6 @@ const appwriteFunctionId = "678b8ffa0037c3515336"; // Replace with your Appwrite
 
 // Function to handle function execution on button click
 
-
 async function triggerCheckout() {
   try {
     // Ensure cart items are displayed and total is calculated
@@ -201,8 +200,8 @@ async function triggerCheckout() {
       appwriteFunctionId,
       JSON.stringify({
         path: "/checkout",
-        failureUrl: "http://127.0.0.1:5501/success.html",
-        successUrl: "http://127.0.0.1:5501/fail.html",
+        failureUrl: "http://127.0.0.1:5501/fail.html",
+        successUrl: "http://127.0.0.1:5501/success.html",
         totalAmount: totalAmount,
         productName: productNames,
       }),
@@ -283,24 +282,24 @@ function getProductNames() {
 }
 
 // Function to get the total amount (after cart items have been displayed)
-function getTotalAmount() {
-  const totalElement = document.getElementById("total-amount");
-  return totalElement
-    ? parseFloat(totalElement.innerText.replace("Total: $", ""))
-    : 0;
-}
+// function getTotalAmount() {
+//   const totalElement = document.getElementById("total-amount");
+//   return totalElement
+//     ? parseFloat(totalElement.innerText.replace("Total: $", ""))
+//     : 0;
+// }
 
-// Function to get the product names (after cart items have been displayed)
-function getProductNames() {
-  const cartItems = document.querySelectorAll(".cart-item");
-  const names = [];
-  cartItems.forEach((item) => {
-    const name = item.querySelector("h4").innerText;
-    console.log("getProductNames() - Captured Product Name:", name);
-    names.push(name);
-  });
-  return names.join(", "); // Join names into a string for simplicity
-}
+// // Function to get the product names (after cart items have been displayed)
+// function getProductNames() {
+//   const cartItems = document.querySelectorAll(".cart-item");
+//   const names = [];
+//   cartItems.forEach((item) => {
+//     const name = item.querySelector("h4").innerText;
+//     console.log("getProductNames() - Captured Product Name:", name);
+//     names.push(name);
+//   });
+//   return names.join(", "); // Join names into a string for simplicity
+// }
 
 // Add event listener to your Checkout button
 document
