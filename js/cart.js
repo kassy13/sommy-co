@@ -200,8 +200,10 @@ async function triggerCheckout() {
       appwriteFunctionId,
       JSON.stringify({
         path: "/checkout",
-        failureUrl: "http://127.0.0.1:5501/fail.html",
-        successUrl: "http://127.0.0.1:5501/success.html",
+        // failureUrl: "http://127.0.0.1:5501/fail.html",
+        // successUrl: "http://127.0.0.1:5501/success.html",
+        successUrl: `${window.location.origin}/success.html`,
+        failureUrl: `${window.location.origin}/fail.html`,
         totalAmount: totalAmount,
         productName: productNames,
       }),
